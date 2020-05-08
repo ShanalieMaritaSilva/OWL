@@ -20,6 +20,7 @@ import org.semanticweb.owlapi.vocab.OWL2Datatype;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 
 import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.parameters.Parameter;
 
 public class ProcessService {
 	
@@ -64,22 +65,25 @@ public class ProcessService {
 		return atomicProcessClass;
 	}
 	
-	public OWLIndividual addIndividual(Operation operation) {
-		OWLIndividual methodIndividual =  ontologyServices.getDataFactory().getOWLNamedIndividual(ontologyServices.getOperationIdIRI("Process_"+operation.getOperationId()));
-		OWLClassAssertionAxiom ax =  ontologyServices.getDataFactory().getOWLClassAssertionAxiom(getAtomicProcessClass(), methodIndividual);
-		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProcessTemplateOntology(), ax);
+	public OWLIndividual addIndividual(Operation operation, Parameter parm, OWLObjectProperty paramRefInDomin) {
+	
+		OWLIndividual methodIndividual =  ontologyServices.addIndividualToClass(ontologyServices.getOperationIdIRI("Process_"+operation.getOperationId()), getAtomicProcessClass(), 
+				ontologyServices.getServiceProcessTemplateOntology());
 		
-		//comment
 		OWLDatatype stringDatatype = ontologyServices.getDataFactory().getStringOWLDatatype();
-		OWLLiteral commentLiteral =  ontologyServices.getDataFactory().getOWLLiteral(operation.getDescription(),stringDatatype);
-		addRDFAxioms(OWLRDFVocabulary.RDFS_COMMENT,commentLiteral,ontologyServices.getOperationIdIRI(operation.getOperationId()));
-		
+		//comment
+		if(!parm.getDescription().isEmpty()) {
+			OWLLiteral commentLiteral =  ontologyServices.getDataFactory().getOWLLiteral(parm.getDescription(),stringDatatype);
+			addRDFAxioms(OWLRDFVocabulary.RDFS_COMMENT,commentLiteral,IRI.create(methodIndividual.toStringID()));
+		}
+
 		//label
-		OWLLiteral labelLiteral =  ontologyServices.getDataFactory().getOWLLiteral(operation.getOperationId(),stringDatatype);
-		addRDFAxioms(OWLRDFVocabulary.RDFS_LABEL,labelLiteral,ontologyServices.getOperationIdIRI(operation.getOperationId()));
+		OWLLiteral labelLiteral =  ontologyServices.getDataFactory().getOWLLiteral("Process_"+operation.getOperationId()
+		,stringDatatype);
+		addRDFAxioms(OWLRDFVocabulary.RDFS_LABEL,labelLiteral,IRI.create(methodIndividual.toStringID() +"(ATOMIC)"));
 		
 		//param input
-		OWLIndividual inputIndividal = addInputIndividual(operation,"latitude");
+		OWLIndividual inputIndividal = addInputIndividual(operation,parm.getName(),paramRefInDomin);
 		addObjectPropertyAssertations(methodIndividual,inputIndividal);
 		
 		return methodIndividual;
@@ -93,14 +97,14 @@ public class ProcessService {
 		 ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProcessTemplateOntology(), axiom);
 	}
 	
-	private OWLIndividual addInputIndividual(Operation operation, String parameterName) {
+	private OWLIndividual addInputIndividual(Operation operation, String parameterName, OWLObjectProperty paramRefInDomin) {
 		OWLIndividual paramIndividual =  this.ontologyServices.getDataFactory().getOWLNamedIndividual(ontologyServices.getOperationIdIRI("Process_"+operation.getOperationId()+"_"+parameterName));
 		OWLClassAssertionAxiom ax =  this.ontologyServices.getDataFactory().getOWLClassAssertionAxiom(getInputClass(), paramIndividual);
 		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProcessTemplateOntology(), ax);
 		
 		OWLDatatype anyURIDatatype = this.ontologyServices.getDataFactory().getOWLDatatype(
 				OWL2Datatype.XSD_ANY_URI.getIRI());
-		OWLLiteral labelLiteral =  this.ontologyServices.getDataFactory().getOWLLiteral("http://www.daml.org/services/owl-s/1.2/Concepts.owl#FlightList",anyURIDatatype);
+		OWLLiteral labelLiteral =  this.ontologyServices.getDataFactory().getOWLLiteral(paramRefInDomin.toStringID(),anyURIDatatype);
 		OWLDataPropertyAssertionAxiom dataPropertyAssertion = ontologyServices.getDataFactory().getOWLDataPropertyAssertionAxiom(getDataPropertyFromProcess(), paramIndividual,
 				labelLiteral);
 		
@@ -109,7 +113,7 @@ public class ProcessService {
 		
 	}
 	public void addObjectPropertyAssertations(OWLIndividual methodIndividual, OWLIndividual inputIndividal) {   
-		OWLAxiom axiom = ontologyServices.getDataFactory().getOWLObjectPropertyAssertionAxiom(ontologyServices.getObjectPropertyFromProcess(), methodIndividual,
+		OWLAxiom axiom = ontologyServices.getDataFactory().getOWLObjectPropertyAssertionAxiom(ontologyServices.getHasInputObjectPropertyFromProcess(), methodIndividual,
 				inputIndividal);
 		
 		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProcessTemplateOntology(),axiom);
