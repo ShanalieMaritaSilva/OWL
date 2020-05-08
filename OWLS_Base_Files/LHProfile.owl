@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE uridef [
+  <!ENTITY xsd "http://www.w3.org/2001/XMLSchema">
+  <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns">
+  <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema">
+  <!ENTITY owl "http://www.w3.org/2002/07/owl">
+  <!ENTITY profile "http://www.daml.org/services/owl-s/1.2/Profile.owl">
+  <!ENTITY actor "http://www.daml.org/services/owl-s/1.2/ActorDefault.owl">
+  <!ENTITY addParam "http://www.daml.org/services/owl-s/1.2/ProfileAdditionalParameters.owl">
+  <!ENTITY profileHierarchy "http://www.daml.org/services/owl-s/1.2/ProfileHierarchy.owl">
+  <!ENTITY country "http://www.daml.org/services/owl-s/1.2/Country.owl">
+  <!ENTITY DEFAULT "http://www.daml.org/services/owl-s/1.2/LHProfileService.owl">
+]>
+
+<!--
+This document uses entity types as a shorthand for URIs.
+Download the source for a version with unexpanded entities.
+  -->
+
+<rdf:RDF xmlns:rdf="&rdf;#" xmlns:rdfs="&rdfs;#" xmlns:owl="&owl;#"  xmlns:profile="&profile;#" xmlns:actor="&actor;#" xmlns:addParam="&addParam;#" xmlns:profileHierarchy="&profileHierarchy;#" xmlns:country="&country;#" xmlns="&DEFAULT;#" xml:base="&DEFAULT;">
+
+
+  <!--Monika 4/10/03: added namespaces "actor" and "addParam" to take into account the shift of some of the properties to other namespaces. -->
+
+  <owl:Ontology rdf:about="">
+    <owl:versionInfo>
+      $Id: BravoAirProfile.owl,v 1.25 2004/11/28 16:29:55 martin Exp $
+    </owl:versionInfo>
+    <rdfs:comment>
+      DAML-S Coalition: BravoAir Example for OWL-S Profile description
+ 
+    </rdfs:comment>
+    <owl:imports rdf:resource="&profile;" />
+    <owl:imports rdf:resource="&actor;" />
+    <owl:imports rdf:resource="&addParam;" />
+    <owl:imports rdf:resource="&country;" />
+    <owl:imports rdf:resource="&profileHierarchy;" />
+  </owl:Ontology>
+
+
+
+  
+</rdf:RDF>

@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE uridef[
+  <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns">
+  <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema">
+  <!ENTITY owl "http://www.w3.org/2002/07/owl">
+  <!ENTITY xsd "http://www.w3.org/2001/XMLSchema">
+  <!ENTITY service "http://www.daml.org/services/owl-s/1.2/Service.owl">
+  <!ENTITY DEFAULT "http://www.daml.org/services/owl-s/1.2/LHService.owl">
+]>
+
+<rdf:RDF
+  xmlns:rdf	= "&rdf;#"
+  xmlns:rdfs	="&rdfs;#"
+  xmlns:owl = "&owl;#"
+  xmlns:xsd	="&xsd;#"
+  xmlns:service=	"&service;#"
+  xmlns		        ="&DEFAULT;#"
+  xml:base		="&DEFAULT;"
+ >
+
+  <owl:Ontology rdf:about="">
+    <owl:versionInfo>
+       $Id: BravoAirService.owl,v 1.22 2004/11/28 16:29:55 martin Exp $
+    </owl:versionInfo>
+    <rdfs:comment> 
+      This ontology represents the OWL-S service description for the
+      BravoAir web service example.
+    </rdfs:comment>
+    <owl:imports rdf:resource="&service;" />
+  </owl:Ontology>
+
+</rdf:RDF>

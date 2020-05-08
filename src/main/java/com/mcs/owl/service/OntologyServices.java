@@ -21,8 +21,6 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.springframework.stereotype.Service;
 
-import io.swagger.v3.oas.models.Operation;
-
 @Service
 public class OntologyServices {
 
@@ -36,6 +34,8 @@ public class OntologyServices {
 	private OWLOntology processOntology = null;
 	private OWLOntology profileOntology = null;
 	private OWLOntology serviceOntology = null;
+	private OWLOntology	expOntology = null;
+	private OWLOntology actorDefaultOntology = null;
 
 	private static OntologyServices ontologyServices = null;
 
@@ -60,6 +60,13 @@ public class OntologyServices {
 
 			OWLImportsDeclaration serviceDec = getDataFactory().getOWLImportsDeclaration(getServiceOntologyIRI());
 			serviceOntology = getOntologyManager().getImportedOntology(serviceDec);
+			
+			OWLImportsDeclaration expDec = getDataFactory().getOWLImportsDeclaration(getExpOntologyIRI());
+			expOntology = getOntologyManager().getImportedOntology(expDec);
+			
+			OWLImportsDeclaration actDec = getDataFactory().getOWLImportsDeclaration(getActorOntologyIRI());
+			actorDefaultOntology = getOntologyManager().getImportedOntology(actDec);
+			
 
 		} catch (OWLOntologyCreationException e) {
 			// TODO Auto-generated catch block
@@ -111,6 +118,13 @@ public class OntologyServices {
 	public IRI getServiceOntologyIRI() {
 		return IRI.create("http://www.daml.org/services/owl-s/1.2/Service.owl");
 	}
+	
+	public IRI getExpOntologyIRI() {
+		return IRI.create("http://www.daml.org/services/owl-s/1.2/generic/Expression.owl");
+	}
+	public IRI getActorOntologyIRI() {
+		return IRI.create("http://www.daml.org/services/owl-s/1.2/ActorDefault.owl");
+	}
 
 	public String getDomainObjectPropertyIRI() {
 		return "http://schema.org/";
@@ -154,9 +168,6 @@ public class OntologyServices {
 		domainOntology.classesInSignature().forEach(System.out::println);
 	}
 
-	public Stream<OWLObjectProperty> getObjectProperties() {
-		return domainOntology.objectPropertiesInSignature();
-	}
 
 	public void saveOntology() {
 		// Save our ontology
@@ -205,7 +216,17 @@ public class OntologyServices {
 		if (objectProperties.isPresent()) {
 			return objectProperties.get();
 		}
-		System.out.println("Not Found property");
+		System.out.println("Not Found property" + " - getHasInputObjectPropertyFromProcess");
+		return null;
+	}
+	public OWLObjectProperty getHasOutputObjectPropertyFromProcess() {
+		IRI paramObjectIRI = IRI.create("http://www.daml.org/services/owl-s/1.2/Process.owl#hasOutput");
+		Optional<OWLObjectProperty> objectProperties = getProcessOntology().objectPropertiesInSignature()
+				.filter(object -> object.getIRI().equals(paramObjectIRI)).findAny();
+		if (objectProperties.isPresent()) {
+			return objectProperties.get();
+		}
+		System.out.println("Not Found property" + " - getHasOutputObjectPropertyFromProcess");
 		return null;
 	}
 
@@ -216,7 +237,7 @@ public class OntologyServices {
 		if (objectProperties.isPresent()) {
 			return objectProperties.get();
 		}
-		System.out.println("Not Found property");
+		System.out.println("Not Found property"  + " - getPresentObjectPropertyFromProcess");
 		return null;
 	}
 
@@ -280,6 +301,18 @@ public class OntologyServices {
 
 	public OWLOntology getServiceOntology() {
 		return serviceOntology;
+	}
+
+	public OWLOntology getExpOntology() {
+		return expOntology;
+	}
+
+	public OWLOntology getActorDefaultOntology() {
+		return actorDefaultOntology;
+	}
+
+	public OWLOntology getDomainOntology() {
+		return domainOntology;
 	}
 
 }
