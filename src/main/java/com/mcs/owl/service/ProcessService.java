@@ -94,7 +94,7 @@ public class ProcessService {
 		return methodIndividual;
 	}
 	
-	public OWLIndividual addOutputIndividual(OWLEntity paramRefInDomin, String responseRef, OWLIndividual profileIndividual) {
+	public OWLIndividual addOutputIndividual(OWLEntity paramRefInDomin, String responseRef, OWLIndividual profileIndividual, OWLIndividual mainProcessIndi) {
 		
 		IRI reposneIri = ontologyServices.getOperationIdIRI(responseRef);
 		OWLIndividual reponseIndi = ontologyServices.addIndividualToObjectProperty(reposneIri,profileIndividual,ontologyServices.getServiceTemplateOntology(),
@@ -125,6 +125,11 @@ public class ProcessService {
 	
 		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProcessTemplateOntology(), dataPropertyAssertionValue);
 		
+		
+		OWLAxiom axiom = ontologyServices.getDataFactory().getOWLObjectPropertyAssertionAxiom(
+				ontologyServices.getHasOutputObjectPropertyFromProcess(), mainProcessIndi, reponseIndi);
+
+		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProcessTemplateOntology(), axiom);
 		return reponseIndi;
 	}
 	
@@ -170,10 +175,10 @@ public class ProcessService {
 		
 	}
 	
-	public OWLIndividual addProcessToAgentIndividual( OWLIndividual agentIndi) {
+	public OWLIndividual addProcessToAgentIndividual( OWLIndividual agentIndi, String operationId) {
 		return ontologyServices.addIndividualToObjectProperty(
-				ontologyServices.getOperationIdIRI(" This is the top level process for LH"), agentIndi,
-				ontologyServices.getServiceTemplateOntology(),
+				ontologyServices.getOperationIdIRI(operationId+"_Process"), agentIndi,
+				ontologyServices.getServiceProcessTemplateOntology(),
 				ontologyServices.getDescribedByObjectPropertyFromProcess());
 
 	}

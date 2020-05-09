@@ -65,12 +65,17 @@ public class ProfileService {
 ////	    ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProfileTemplateOntology(),axiom);
 ////	    addProfileIndividual(subProfileClass, operation,processIndi);
 //	}
-	public void addProcessIndividualProfileIndividual(OWLIndividual profileIndividual, OWLIndividual processIndi) {
+	public void addProcessIndividualProfileIndividual(OWLIndividual profileIndividual, OWLIndividual processIndi, OWLIndividual mainProcessIndi) {
 
 		OWLAxiom axiom = ontologyServices.getDataFactory().getOWLObjectPropertyAssertionAxiom(
 				ontologyServices.getHasInputObjectPropertyFromProcess(), profileIndividual, processIndi);
 
 		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProfileTemplateOntology(), axiom);
+		
+		axiom = ontologyServices.getDataFactory().getOWLObjectPropertyAssertionAxiom(
+				ontologyServices.getHasInputObjectPropertyFromProcess(), mainProcessIndi, processIndi);
+
+		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProcessTemplateOntology(), axiom);
 	}
 
 	public void addDescriptionsAndServiceName(OWLIndividual profileIndividual, Operation get) {

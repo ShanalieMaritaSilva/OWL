@@ -28,6 +28,7 @@ public class ServicesService {
 	OntologyServices ontologyServices = OntologyServices.getOntologyServices();
 	ProcessService processService = new ProcessService();
 	ProfileService profileService = new ProfileService();
+	GroundingService groundingService = new GroundingService();
 
 	public void addAgentIndividual(String pathUrl, PathItem pathItem) {
 
@@ -44,13 +45,16 @@ public class ServicesService {
 		
 		profileService.addServiceClass(pathItem.getGet(), profileIndividual);
 		
-		processService.addProcessToAgentIndividual(agentIndividual,processIndi);
+		OWLIndividual mainProcessIndi = processService.addProcessToAgentIndividual(agentIndividual,pathItem.getGet().getOperationId());
+		
+		groundingService.addGroundingToAgentIndividual(agentIndividual,pathItem.getGet().getOperationId());
 
 		for (Parameter parm : pathItem.getGet().getParameters()) {
-			OWLEntity paramRefInDomin = new SwaggerParser().getResourceFromDomain(parm.getName());
+			String pathName = parm.getName().replace("Code", "");
+			OWLEntity paramRefInDomin = new SwaggerParser().getResourceFromDomain(pathName);
 			if (paramRefInDomin != null) {
-			OWLIndividual processIndi = processService.addInputIndividual(pathItem.getGet(), parm, paramRefInDomin);
-			profileService.addProcessIndividualProfileIndividual(profileIndividual, processIndi);
+				OWLIndividual processIndi = processService.addInputIndividual(pathItem.getGet(), parm, paramRefInDomin);
+				profileService.addProcessIndividualProfileIndividual(profileIndividual, processIndi,mainProcessIndi);
 			
 			}
 
@@ -60,7 +64,7 @@ public class ServicesService {
 		String response = responseRef.replace("Response", "");
 		OWLEntity paramRefInDomin = new SwaggerParser().getResourceFromDomain(response);
 		if (paramRefInDomin != null) {
-			processService.addOutputIndividual(paramRefInDomin,responseRef,profileIndividual);
+			processService.addOutputIndividual(paramRefInDomin,responseRef,profileIndividual,mainProcessIndi);
 		}
 
 		

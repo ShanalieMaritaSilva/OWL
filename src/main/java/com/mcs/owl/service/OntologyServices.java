@@ -32,6 +32,7 @@ public class OntologyServices {
 	private OWLOntology serviceProcessTemplateOntology = null;
 	private OWLOntology serviceProfileTemplateOntology = null;
 	private OWLOntology serviceTemplateOntology = null;
+	private OWLOntology groundingTemplateOntology = null;
 
 	private OWLOntology processOntology = null;
 	private OWLOntology profileOntology = null;
@@ -58,6 +59,8 @@ public class OntologyServices {
 					.loadOntology(getServiceProfileTemplateOntologyIRI());
 			serviceTemplateOntology = getOntologyManager()
 					.loadOntology(getServiceTemplateOntologyIRI());
+			groundingTemplateOntology =  getOntologyManager()
+					.loadOntology(getGroundingTemplateOntologyIRI());
 
 			OWLImportsDeclaration processDec = getDataFactory().getOWLImportsDeclaration(getProcessOntologyIRI());
 			processOntology = getOntologyManager().getImportedOntology(processDec);
@@ -117,7 +120,10 @@ public class OntologyServices {
 	public IRI getServiceTemplateOntologyIRI() {
 		return IRI.create("https://raw.githubusercontent.com/ShanalieMaritaSilva/OWL/master/OWLS_Base_Files/LHService.owl");
 	}
-
+	public IRI getGroundingTemplateOntologyIRI() {
+		return IRI.create("https://raw.githubusercontent.com/ShanalieMaritaSilva/OWL/master/OWLS_Base_Files/LHGrounding.owl");
+	}
+	
 	public IRI getProcessOntologyIRI() {
 		return IRI.create("http://www.daml.org/services/owl-s/1.2/Process.owl");
 	}
@@ -195,6 +201,10 @@ public class OntologyServices {
 			owlManager.saveOntology(serviceProfileTemplateOntology, this.getCustomOntologyIRI("LHProfileService.owl"));
 			System.out.println(
 					"ONOTOLOGY SAVED --->  " + this.getCustomOntologyIRI("LHProfileService.owl").getIRIString());
+			
+			owlManager.saveOntology(groundingTemplateOntology, this.getCustomOntologyIRI("LHGrounding.owl"));
+			System.out.println(
+					"ONOTOLOGY SAVED --->  " + this.getCustomOntologyIRI("LHGrounding.owl").getIRIString());
 
 			owlManager.saveOntology(serviceTemplateOntology, this.getCustomOntologyIRI("LHService.owl"));
 			
@@ -212,6 +222,9 @@ public class OntologyServices {
 				.getOWLImportsDeclaration(getDomainOntologyIRI());
 		getOntologyManager().applyChange(new AddImport(getServiceTemplateOntology(), importDeclaration));
 		
+		importDeclaration = getOntologyManager().getOWLDataFactory()
+				.getOWLImportsDeclaration(getCustomOntologyIRI("LHGrounding.owl"));
+		getOntologyManager().applyChange(new AddImport(getServiceTemplateOntology(), importDeclaration));
 		
 		importDeclaration = getOntologyManager().getOWLDataFactory()
 				.getOWLImportsDeclaration(getCustomOntologyIRI("LHProfileService.owl"));
@@ -282,7 +295,16 @@ public class OntologyServices {
 		System.out.println("Not Found property"  + " - getSupportByObjectPropertyFromProcess");
 		return null;
 	}
-
+	public OWLObjectProperty gethasAtomicProcessObjectPropertyFromProcess() {
+		IRI paramObjectIRI = IRI.create("http://www.daml.org/services/owl-s/1.2/Grounding.owl#hasAtomicProcessGrounding");
+		Optional<OWLObjectProperty> objectProperties = getGroundingOntology().objectPropertiesInSignature()
+				.filter(object -> object.getIRI().equals(paramObjectIRI)).findAny();
+		if (objectProperties.isPresent()) {
+			return objectProperties.get();
+		}
+		System.out.println("Not Found property"  + " - getSupportByObjectPropertyFromProcess");
+		return null;
+	}
 	public OWLIndividual addIndividualToClass(IRI indiIRI, OWLClass owlClass, OWLOntology ontology) {
 
 		OWLIndividual individual = getDataFactory().getOWLNamedIndividual(indiIRI);
@@ -364,6 +386,14 @@ public class OntologyServices {
 
 	public OWLOntology getDomainOntology() {
 		return domainOntology;
+	}
+
+	public OWLOntology getGroundingOntology() {
+		return groundingOntology;
+	}
+
+	public OWLOntology getGroundingTemplateOntology() {
+		return groundingTemplateOntology;
 	}
 
 }
