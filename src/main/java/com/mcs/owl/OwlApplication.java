@@ -2,8 +2,8 @@ package com.mcs.owl;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import com.mcs.owl.service.Matcher;
 import com.mcs.owl.service.OntologyServices;
-import com.mcs.owl.service.QueryService;
 import com.mcs.owl.service.ServicesService;
 import com.mcs.owl.utils.SwaggerParser;
 
@@ -28,7 +28,8 @@ public class OwlApplication {
 			
 		});
 		
-		new QueryService().query();
+//		new Matcher().checkForExactMatch("ss");
+//		
 		ontologyServices.saveOntology();
 	
 	}

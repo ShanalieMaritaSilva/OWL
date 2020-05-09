@@ -1,12 +1,18 @@
 package com.mcs.owl.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLDataProperty;
+import org.semanticweb.owlapi.model.OWLDataPropertyAssertionAxiom;
+import org.semanticweb.owlapi.model.OWLDatatype;
 import org.semanticweb.owlapi.model.OWLIndividual;
+import org.semanticweb.owlapi.model.OWLLiteral;
+import org.semanticweb.owlapi.vocab.OWL2Datatype;
 
 import io.swagger.v3.oas.models.Operation;
 
@@ -67,4 +73,40 @@ public class ProfileService {
 		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProfileTemplateOntology(), axiom);
 	}
 
+	public void addDescriptionsAndServiceName(OWLIndividual profileIndividual, Operation get) {
+		
+		OWLLiteral parmValueLiteral =  this.ontologyServices.getDataFactory().getOWLLiteral(get.getDescription());
+		OWLDataPropertyAssertionAxiom dataPropertyAssertionValue = ontologyServices.getDataFactory()
+				.getOWLDataPropertyAssertionAxiom(getDataPropertyFromProfile(), profileIndividual,
+				parmValueLiteral);
+		
+		OWLLiteral serviceNameLiteral =  this.ontologyServices.getDataFactory().getOWLLiteral(get.getOperationId());
+		OWLDataPropertyAssertionAxiom dataServicePropertyAssertionValue = ontologyServices.getDataFactory()
+				.getOWLDataPropertyAssertionAxiom(getServiceNameDataPropertyFromProfile(), profileIndividual,
+						serviceNameLiteral);
+	
+		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProcessTemplateOntology(), dataPropertyAssertionValue);
+		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProcessTemplateOntology(), dataServicePropertyAssertionValue);
+	}
+	
+	public OWLDataProperty getDataPropertyFromProfile() {
+		IRI parameterTypeIRI = IRI.create("http://www.daml.org/services/owl-s/1.2/Profile.owl#textDescription");
+		Optional<OWLDataProperty> dataProperties = ontologyServices.getProfileOntology().dataPropertiesInSignature()
+				.filter(object -> object.getIRI().equals(parameterTypeIRI)).findAny();
+		if(dataProperties.isPresent()) {
+			return dataProperties.get();
+		}
+		System.out.println("Not Found property" + " - getDataPropertyFromProfile");
+		return null;
+	}
+	public OWLDataProperty getServiceNameDataPropertyFromProfile() {
+		IRI parameterTypeIRI = IRI.create("http://www.daml.org/services/owl-s/1.2/Profile.owl#serviceName");
+		Optional<OWLDataProperty> dataProperties = ontologyServices.getProfileOntology().dataPropertiesInSignature()
+				.filter(object -> object.getIRI().equals(parameterTypeIRI)).findAny();
+		if(dataProperties.isPresent()) {
+			return dataProperties.get();
+		}
+		System.out.println("Not Found property" + " - getDataPropertyFromProfile");
+		return null;
+	}
 }

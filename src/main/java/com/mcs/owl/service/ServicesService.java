@@ -1,6 +1,5 @@
 package com.mcs.owl.service;
 
-import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -13,7 +12,6 @@ import org.semanticweb.owlapi.model.OWLDatatype;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLIndividual;
 import org.semanticweb.owlapi.model.OWLLiteral;
-import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.vocab.OWL2Datatype;
 
 import com.mcs.owl.utils.SwaggerParser;
@@ -40,31 +38,32 @@ public class ServicesService {
 		addWebUrl(pathUrl, agentIndividual);
 
 		OWLIndividual profileIndividual = profileService.addProfileIndividual(pathItem.getGet(), agentIndividual);
-
+		
+		//add Data Properties
+		profileService.addDescriptionsAndServiceName(profileIndividual,pathItem.getGet());
+		
 		profileService.addServiceClass(pathItem.getGet(), profileIndividual);
+		
+		processService.addProcessToAgentIndividual(agentIndividual,processIndi);
 
 		for (Parameter parm : pathItem.getGet().getParameters()) {
 			OWLEntity paramRefInDomin = new SwaggerParser().getResourceFromDomain(parm.getName());
 			if (paramRefInDomin != null) {
 			OWLIndividual processIndi = processService.addInputIndividual(pathItem.getGet(), parm, paramRefInDomin);
 			profileService.addProcessIndividualProfileIndividual(profileIndividual, processIndi);
+			
 			}
 
 		}
 
 		String responseRef = getResponse(pathItem);
-		String response = responseRef.replace("Resource", "");
+		String response = responseRef.replace("Response", "");
 		OWLEntity paramRefInDomin = new SwaggerParser().getResourceFromDomain(response);
 		if (paramRefInDomin != null) {
-			
 			processService.addOutputIndividual(paramRefInDomin,responseRef,profileIndividual);
-			// OWLIndividual processIndi = processService.addIndividual(pathItem.getGet(),
-			// parm, paramRefInDomin);
-			// profileService.addProcessIndividualProfileIndividual(profileIndividual,
-			// processIndi);
 		}
 
-		// #/components/schemas/AirportResource
+		
 	}
 
 	private String getResponse(PathItem pathItem) {

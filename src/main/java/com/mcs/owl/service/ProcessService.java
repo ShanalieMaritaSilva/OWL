@@ -37,6 +37,7 @@ public class ProcessService {
 		System.out.println("Not Found property" + " - getParmValDataPropertyFromProcess");
 		return null;
 	}
+	
 	public OWLDataProperty getRefUriDataPropertyFromProcess() {
 		IRI parameterTypeIRI = IRI.create("http://www.daml.org/services/owl-s/1.2/generic/Expression.owl#refURI");
 		Optional<OWLDataProperty> dataProperties = ontologyServices.getExpOntology().dataPropertiesInSignature()
@@ -102,7 +103,11 @@ public class ProcessService {
 		OWLClassAssertionAxiom ax =  this.ontologyServices.getDataFactory().getOWLClassAssertionAxiom(getOutputClass(), reponseIndi);
 		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProcessTemplateOntology(), ax);
 		
-		
+		if(paramRefInDomin.isOWLClass()) {
+			OWLClassAssertionAxiom ass =  this.ontologyServices.getDataFactory().getOWLClassAssertionAxiom(paramRefInDomin.asOWLClass(), reponseIndi);
+			ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProcessTemplateOntology(), ass);
+		}
+	
 		if(paramRefInDomin != null) {
 			OWLDatatype anyURIDatatype = this.ontologyServices.getDataFactory().getOWLDatatype(
 					OWL2Datatype.XSD_ANY_URI.getIRI());
@@ -121,10 +126,6 @@ public class ProcessService {
 		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProcessTemplateOntology(), dataPropertyAssertionValue);
 		
 		return reponseIndi;
-		
-		
-		
-		
 	}
 	
 
@@ -142,6 +143,7 @@ public class ProcessService {
 		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProcessTemplateOntology(), ax);
 		
 		if(paramRefInDomin != null) {
+		
 			OWLDatatype anyURIDatatype = this.ontologyServices.getDataFactory().getOWLDatatype(
 					OWL2Datatype.XSD_ANY_URI.getIRI());
 			OWLLiteral labelLiteral =  this.ontologyServices.getDataFactory().getOWLLiteral(paramRefInDomin.toStringID(),anyURIDatatype);
@@ -166,6 +168,14 @@ public class ProcessService {
 		
 		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProcessTemplateOntology(),axiom);
 		
+	}
+	
+	public OWLIndividual addProcessToAgentIndividual( OWLIndividual agentIndi) {
+		return ontologyServices.addIndividualToObjectProperty(
+				ontologyServices.getOperationIdIRI(" This is the top level process for LH"), agentIndi,
+				ontologyServices.getServiceTemplateOntology(),
+				ontologyServices.getDescribedByObjectPropertyFromProcess());
+
 	}
 
 	

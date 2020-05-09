@@ -1,7 +1,6 @@
 package com.mcs.owl.service;
 
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.AddImport;
@@ -19,6 +18,9 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
+import org.semanticweb.owlapi.reasoner.OWLReasoner;
+import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
+import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -34,8 +36,13 @@ public class OntologyServices {
 	private OWLOntology processOntology = null;
 	private OWLOntology profileOntology = null;
 	private OWLOntology serviceOntology = null;
+	private OWLOntology groundingOntology = null;
+	
 	private OWLOntology	expOntology = null;
 	private OWLOntology actorDefaultOntology = null;
+	
+	OWLReasonerFactory reasonerFactory = new StructuralReasonerFactory();
+	OWLReasoner reasoner = null;
 
 	private static OntologyServices ontologyServices = null;
 
@@ -46,11 +53,11 @@ public class OntologyServices {
 
 			domainOntology = getOntologyManager().loadOntology(getDomainOntologyIRI());
 			serviceProcessTemplateOntology = getOntologyManager()
-					.loadOntologyFromOntologyDocument(getServiceProcessTemplateOntologyIRI());
+					.loadOntology(getServiceProcessTemplateOntologyIRI());
 			serviceProfileTemplateOntology = getOntologyManager()
-					.loadOntologyFromOntologyDocument(getServiceProfileTemplateOntologyIRI());
+					.loadOntology(getServiceProfileTemplateOntologyIRI());
 			serviceTemplateOntology = getOntologyManager()
-					.loadOntologyFromOntologyDocument(getServiceTemplateOntologyIRI());
+					.loadOntology(getServiceTemplateOntologyIRI());
 
 			OWLImportsDeclaration processDec = getDataFactory().getOWLImportsDeclaration(getProcessOntologyIRI());
 			processOntology = getOntologyManager().getImportedOntology(processDec);
@@ -66,6 +73,10 @@ public class OntologyServices {
 			
 			OWLImportsDeclaration actDec = getDataFactory().getOWLImportsDeclaration(getActorOntologyIRI());
 			actorDefaultOntology = getOntologyManager().getImportedOntology(actDec);
+			
+			OWLImportsDeclaration groundDec = getDataFactory().getOWLImportsDeclaration(getGroundingOntologyIRI());
+			groundingOntology = getOntologyManager().getImportedOntology(groundDec);
+			
 			
 
 		} catch (OWLOntologyCreationException e) {
@@ -96,15 +107,15 @@ public class OntologyServices {
 	}
 
 	public IRI getServiceProcessTemplateOntologyIRI() {
-		return IRI.create("file:C:/Users/shana/Documents/MCS/Project/OWL-S/Ontology/OWLS/LHProcess.owl");
+		return IRI.create("https://raw.githubusercontent.com/ShanalieMaritaSilva/OWL/master/OWLS_Base_Files/LHProcess.owl");
 	}
 
 	public IRI getServiceProfileTemplateOntologyIRI() {
-		return IRI.create("file:C:/Users/shana/Documents/MCS/Project/OWL-S/Ontology/OWLS/LHProfile.owl");
+		return IRI.create("https://raw.githubusercontent.com/ShanalieMaritaSilva/OWL/master/OWLS_Base_Files/LHProfile.owl");
 	}
 
 	public IRI getServiceTemplateOntologyIRI() {
-		return IRI.create("file:C:/Users/shana/Documents/MCS/Project/OWL-S/Ontology/OWLS/LHService.owl");
+		return IRI.create("https://raw.githubusercontent.com/ShanalieMaritaSilva/OWL/master/OWLS_Base_Files/LHService.owl");
 	}
 
 	public IRI getProcessOntologyIRI() {
@@ -117,6 +128,10 @@ public class OntologyServices {
 
 	public IRI getServiceOntologyIRI() {
 		return IRI.create("http://www.daml.org/services/owl-s/1.2/Service.owl");
+	}
+
+	public IRI getGroundingOntologyIRI() {
+		return IRI.create("http://www.daml.org/services/owl-s/1.2/Grounding.owl");
 	}
 	
 	public IRI getExpOntologyIRI() {
@@ -192,7 +207,13 @@ public class OntologyServices {
 	}
 
 	public void importOntology() {
+		
 		OWLImportsDeclaration importDeclaration = getOntologyManager().getOWLDataFactory()
+				.getOWLImportsDeclaration(getDomainOntologyIRI());
+		getOntologyManager().applyChange(new AddImport(getServiceTemplateOntology(), importDeclaration));
+		
+		
+		importDeclaration = getOntologyManager().getOWLDataFactory()
 				.getOWLImportsDeclaration(getCustomOntologyIRI("LHProfileService.owl"));
 		getOntologyManager().applyChange(new AddImport(getServiceTemplateOntology(), importDeclaration));
 		
@@ -240,6 +261,27 @@ public class OntologyServices {
 		System.out.println("Not Found property"  + " - getPresentObjectPropertyFromProcess");
 		return null;
 	}
+	public OWLObjectProperty getDescribedByObjectPropertyFromProcess() {
+		IRI paramObjectIRI = IRI.create("http://www.daml.org/services/owl-s/1.2/Service.owl#describedBy");
+		Optional<OWLObjectProperty> objectProperties = getServiceOntology().objectPropertiesInSignature()
+				.filter(object -> object.getIRI().equals(paramObjectIRI)).findAny();
+		if (objectProperties.isPresent()) {
+			return objectProperties.get();
+		}
+		System.out.println("Not Found property"  + " - getDescribedByObjectPropertyFromProcess");
+		return null;
+	}
+	
+	public OWLObjectProperty getSupportByObjectPropertyFromProcess() {
+		IRI paramObjectIRI = IRI.create("http://www.daml.org/services/owl-s/1.2/Service.owl#supports");
+		Optional<OWLObjectProperty> objectProperties = getServiceOntology().objectPropertiesInSignature()
+				.filter(object -> object.getIRI().equals(paramObjectIRI)).findAny();
+		if (objectProperties.isPresent()) {
+			return objectProperties.get();
+		}
+		System.out.println("Not Found property"  + " - getSupportByObjectPropertyFromProcess");
+		return null;
+	}
 
 	public OWLIndividual addIndividualToClass(IRI indiIRI, OWLClass owlClass, OWLOntology ontology) {
 
@@ -265,6 +307,8 @@ public class OntologyServices {
 		ontologyServices.getOntologyManager().addAxiom(ontology, axiom);
 		return individual;
 	}
+	
+
 
 	public OWLClass addSubClass(OWLClass subClass, OWLClass superClass, OWLOntology ontology) {
 
@@ -277,6 +321,13 @@ public class OntologyServices {
 		
 		return subClass;
 
+	}
+	public OWLReasoner getReasoner() {
+		if(reasoner == null) {
+			reasoner = reasonerFactory.createReasoner(this.getServiceTemplateOntology());
+		}
+		return reasoner;
+		 
 	}
 
 	public OWLOntology getServiceProcessTemplateOntology() {

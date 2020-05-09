@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE uridef [
+  <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns">
+  <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema">
+  <!ENTITY owl "http://www.w3.org/2002/07/owl">
+  <!ENTITY xsd "http://www.w3.org/2001/XMLSchema">
+  <!ENTITY grounding "http://www.daml.org/services/owl-s/1.2/Grounding.owl">
+  <!ENTITY DEFAULT "http://www.daml.org/services/owl-s/1.2/LHGrounding.owl">
+]>
+<!--
+This document uses entity types as a shorthand for URIs.
+Download the source for a version with unexpanded entities.
+  -->
+
+<rdf:RDF 
+  xmlns:rdf="&rdf;#" 
+  xmlns:rdfs="&rdfs;#" 
+  xmlns:owl="&owl;#" 
+  xmlns:xsd="&xsd;#" 
+  xmlns:grounding="&grounding;#"  
+  xmlns="&DEFAULT;#"
+  xml:base="&DEFAULT;">
+
+  <owl:Ontology rdf:about="">
+    <owl:versionInfo>
+      $Id: BravoAirGrounding.owl,v 1.37 2006/01/18 02:22:34 martin Exp $
+    </owl:versionInfo>
+    <rdfs:comment>
+      DAML-S Coalition: BravoAir Example for OWL-S Grounding
+    </rdfs:comment>
+    <owl:imports rdf:resource="&grounding;"/>
+  </owl:Ontology>
+
+
+</rdf:RDF>
