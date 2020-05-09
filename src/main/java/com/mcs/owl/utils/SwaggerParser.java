@@ -27,11 +27,12 @@ public class SwaggerParser {
 		
 		Stream<OWLEntity> entity = ontologyServices.getDomainOntology().entitiesInSignature(resourceIRI);
 		
-		
 		Optional<OWLEntity> objectProperties = entity.findAny();
 		if(objectProperties.isPresent()) {
 			return objectProperties.get();
 		}
+	
+		
 		System.out.println("Not Found property" + " - getObjectPropertyFromDomain : "+ objectName);
 		return null;
 	}

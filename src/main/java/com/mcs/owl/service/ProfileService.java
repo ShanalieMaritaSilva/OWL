@@ -70,12 +70,12 @@ public class ProfileService {
 		OWLAxiom axiom = ontologyServices.getDataFactory().getOWLObjectPropertyAssertionAxiom(
 				ontologyServices.getHasInputObjectPropertyFromProcess(), profileIndividual, processIndi);
 
-		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProfileTemplateOntology(), axiom);
+		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceTemplateOntology(), axiom);
 		
 		axiom = ontologyServices.getDataFactory().getOWLObjectPropertyAssertionAxiom(
 				ontologyServices.getHasInputObjectPropertyFromProcess(), mainProcessIndi, processIndi);
 
-		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProcessTemplateOntology(), axiom);
+		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceTemplateOntology(), axiom);
 	}
 
 	public void addDescriptionsAndServiceName(OWLIndividual profileIndividual, Operation get) {
@@ -90,8 +90,8 @@ public class ProfileService {
 				.getOWLDataPropertyAssertionAxiom(getServiceNameDataPropertyFromProfile(), profileIndividual,
 						serviceNameLiteral);
 	
-		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProcessTemplateOntology(), dataPropertyAssertionValue);
-		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProcessTemplateOntology(), dataServicePropertyAssertionValue);
+		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceTemplateOntology(), dataPropertyAssertionValue);
+		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceTemplateOntology(), dataServicePropertyAssertionValue);
 	}
 	
 	public OWLDataProperty getDataPropertyFromProfile() {

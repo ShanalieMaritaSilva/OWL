@@ -27,10 +27,10 @@ public class OwlApplication {
 			servicesService.addAgentIndividual(pathUrl,pathItem);
 			
 		});
-		
-//		new Matcher().checkForExactMatch("ss");
-//		
 		ontologyServices.saveOntology();
+	new Matcher().getOutputs("ss");
+//		
+		
 	
 	}
 

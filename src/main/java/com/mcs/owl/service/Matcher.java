@@ -1,81 +1,85 @@
 package com.mcs.owl.service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import org.apache.jena.atlas.iterator.Iter;
-import org.apache.jena.ontology.OntClass;
-import org.apache.jena.ontology.OntModel;
-import org.apache.jena.ontology.Ontology;
-import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
-import org.apache.jena.query.Syntax;
-import org.apache.jena.rdf.model.Resource;
-import org.semanticweb.owlapi.io.OWLObjectRenderer;
-import org.semanticweb.owlapi.manchestersyntax.renderer.ManchesterOWLSyntaxOWLObjectRendererImpl;
-import org.semanticweb.owlapi.model.IRI;
-import org.semanticweb.owlapi.model.OWLAxiom;
-import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLClassExpression;
-import org.semanticweb.owlapi.model.OWLDataFactory;
-import org.semanticweb.owlapi.model.OWLDataProperty;
-import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.parameters.OntologyCopy;
 
-import ru.avicomp.ontapi.DataFactory;
 import ru.avicomp.ontapi.OntManagers;
 import ru.avicomp.ontapi.OntologyManager;
 import ru.avicomp.ontapi.OntologyModel;
-import ru.avicomp.ontapi.internal.InternalObjectFactory;
 
 public class Matcher {
-	
-	//EXACT
+
+	// EXACT
 	OntologyServices ontologyServices = OntologyServices.getOntologyServices();
 	ProcessService processService = new ProcessService();
+
+	String processPrefix = "PREFIX process:<http://www.daml.org/services/owl-s/1.2/Process.owl#> \n";
+	String rdfPrefix = "PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n";
+	String expPrefix = "PREFIX owl: <http://www.w3.org/2002/07/owl#> \n";
+	String profilePrefix = "PREFIX profile:<http://www.daml.org/services/owl-s/1.2/Profile.owl#> \n";
 	
-	public void checkForExactMatch(String keyword) {
+	public List<QuerySolution> getInputs(String keyword) {
+
+		List<QuerySolution> sols = new ArrayList<QuerySolution>();
 		
 		OntologyModel o = getOntology();
-		String processPrefix = "PREFIX process:<http://www.daml.org/services/owl-s/1.2/Process.owl#> \n";
-		String rdfPrefix = "PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n";
-		String expPrefix = "PREFIX owl: <http://www.w3.org/2002/07/owl#> \n";
-		
-		
-		  try (QueryExecution qexec = QueryExecutionFactory.create(QueryFactory
-		            .create(rdfPrefix + processPrefix + expPrefix+
-		                    "SELECT ?process \n" + 
-		                    "WHERE { \n" + 
-//		                    "?param expression:refURI ?refUrl ; \n"+
-//		                    "?param rdf:type process:Output. " + 
-		              //       "?process process:hasOutput ?param." + 
-		                    "?process rdf:type owl:NamedIndividual ; process:parameterValue ?v . FILTER regex(str(?v), \"o\", \"i\")" + 
-		                    "}"), o.asGraphModel())) {
-		        ResultSet res = qexec.execSelect();
-		        while (res.hasNext()) {
-		            System.out.println(res.next());
-		        }
-		    }
 
-}
+		try (QueryExecution qexec = QueryExecutionFactory.create(QueryFactory.create(rdfPrefix + processPrefix
+				+ expPrefix + profilePrefix + "SELECT ?serviceName ?serviceTextDescription \n" + "WHERE { \n"
+				+ "?automicprocess process:hasInput ?process." + "?agent process:hasInput ?automicprocess."
+				+ "?process process:parameterValue ?paramVal. \n" + "?agent profile:serviceName ?serviceName. \n"
+				+ "?agent profile:textDescription ?serviceTextDescription."
+				+ "FILTER regex(str(?paramVal), \"location\", \"i\")." + "}"), o.asGraphModel())) {
+			ResultSet res = qexec.execSelect();
+			while (res.hasNext()) {
+				sols.add(res.next());
+				System.out.println();
+			}
+		}
+		return sols;
+
+	}
+
 	public OntologyModel getOntology() {
 
-	    // Get ONT-API manager:
-	    OntologyManager ontManager = OntManagers.createONT();
+		// Get ONT-API manager:
+		OntologyManager ontManager = OntManagers.createONT();
 
-	  //new QueryService().query();
-	  	OWLOntology owlOntology = ontologyServices.getServiceTemplateOntology();
-	    // Copy from OWL- to ONT-Manager.
-	    // This will produce an OWL-ontology (Ontology) with a jena Graph inside:
-	    OntologyModel ontOntology = ontManager.copyOntology(owlOntology, OntologyCopy.DEEP);
+		// new QueryService().query();
+		OWLOntology owlOntology = ontologyServices.getServiceTemplateOntology();
+		// Copy from OWL- to ONT-Manager.
+		// This will produce an OWL-ontology (Ontology) with a jena Graph inside:
+		OntologyModel ontOntology = ontManager.copyOntology(owlOntology, OntologyCopy.DEEP);
 
-	    return ontOntology;
+		return ontOntology;
+	}
+
+	public List<QuerySolution> getOutputs(String keyword) {
+		List<QuerySolution> sols = new ArrayList<QuerySolution>();
+		
+		OntologyModel o = getOntology();
+		try (QueryExecution qexec = QueryExecutionFactory.create(QueryFactory.create(
+				rdfPrefix + processPrefix + expPrefix + profilePrefix + "SELECT ?serviceName ?serviceTextDescription \n"
+						+ "WHERE { \n" + "?process profile:serviceName ?serviceName. \n "
+						+ "?process profile:textDescription ?serviceTextDescription. \n"
+						+ "?param process:parameterValue ?paramVal." + "?process process:hasOutput ?param."
+						+ " FILTER regex(str(?paramVal), \"Airport\", \"i\")." + "}"),
+				o.asGraphModel())) {
+			ResultSet res = qexec.execSelect();
+			while (res.hasNext()) {
+				System.out.println(res.next());
+				sols.add(res.next());
+			}
+		}
+		return sols;
 	}
 //	private void gg() {
 //		 // use pizza, since no example data provided in the question:

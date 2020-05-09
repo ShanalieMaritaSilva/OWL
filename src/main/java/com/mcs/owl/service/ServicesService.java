@@ -51,7 +51,16 @@ public class ServicesService {
 
 		for (Parameter parm : pathItem.getGet().getParameters()) {
 			String pathName = parm.getName().replace("Code", "");
+			
+			if(pathName.equalsIgnoreCase("Accept") || pathName.equalsIgnoreCase("Limit") || pathName.equalsIgnoreCase("Offset")) {
+				continue;
+			}
 			OWLEntity paramRefInDomin = new SwaggerParser().getResourceFromDomain(pathName);
+			
+			if(paramRefInDomin == null) {
+				pathName = pathName.substring(0, 1).toUpperCase() + pathName.substring(1);
+				paramRefInDomin = new SwaggerParser().getResourceFromDomain(pathName);
+			}
 			if (paramRefInDomin != null) {
 				OWLIndividual processIndi = processService.addInputIndividual(pathItem.getGet(), parm, paramRefInDomin);
 				profileService.addProcessIndividualProfileIndividual(profileIndividual, processIndi,mainProcessIndi);

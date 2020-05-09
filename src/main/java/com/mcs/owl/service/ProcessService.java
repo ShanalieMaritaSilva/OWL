@@ -123,7 +123,7 @@ public class ProcessService {
 		OWLDataPropertyAssertionAxiom dataPropertyAssertionValue = ontologyServices.getDataFactory().getOWLDataPropertyAssertionAxiom(getParmValDataPropertyFromProcess(), reponseIndi,
 				parmValueLiteral);
 	
-		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProcessTemplateOntology(), dataPropertyAssertionValue);
+		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceTemplateOntology(), dataPropertyAssertionValue);
 		
 		
 		OWLAxiom axiom = ontologyServices.getDataFactory().getOWLObjectPropertyAssertionAxiom(
@@ -163,7 +163,7 @@ public class ProcessService {
 		OWLDataPropertyAssertionAxiom dataPropertyAssertionValue = ontologyServices.getDataFactory().getOWLDataPropertyAssertionAxiom(getParmValDataPropertyFromProcess(), paramIndividual,
 				parmValueLiteral);
 	
-		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProcessTemplateOntology(), dataPropertyAssertionValue);
+		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceTemplateOntology(), dataPropertyAssertionValue);
 		return paramIndividual;
 		
 	}
@@ -171,7 +171,7 @@ public class ProcessService {
 		OWLAxiom axiom = ontologyServices.getDataFactory().getOWLObjectPropertyAssertionAxiom(ontologyServices.getHasInputObjectPropertyFromProcess(), methodIndividual,
 				inputIndividal);
 		
-		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceProcessTemplateOntology(),axiom);
+		ontologyServices.getOntologyManager().addAxiom(ontologyServices.getServiceTemplateOntology(),axiom);
 		
 	}
 	
