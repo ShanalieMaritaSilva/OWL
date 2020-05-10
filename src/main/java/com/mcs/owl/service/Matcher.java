@@ -19,7 +19,6 @@ public class Matcher {
 
 	// EXACT
 	OntologyServices ontologyServices = OntologyServices.getOntologyServices();
-	ProcessService processService = new ProcessService();
 
 	String processPrefix = "PREFIX process:<http://www.daml.org/services/owl-s/1.2/Process.owl#> \n";
 	String rdfPrefix = "PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n";

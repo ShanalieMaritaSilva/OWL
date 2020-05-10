@@ -36,6 +36,7 @@ public class ServicesService {
 
 		OWLIndividual agentIndividual = ontologyServices.addIndividualToClass(agentIRI, getServiceClass(),
 				ontologyServices.getServiceTemplateOntology());
+		
 		addWebUrl(pathUrl, agentIndividual);
 
 		OWLIndividual profileIndividual = profileService.addProfileIndividual(pathItem.getGet(), agentIndividual);
